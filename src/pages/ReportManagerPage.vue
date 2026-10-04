@@ -1,9 +1,8 @@
 <template>
   <div class="space-y-4">
     <div>
-      <p class="text-xs text-muted">Pengelola Laporan</p>
       <h2 class="text-2xl font-extrabold">Pengelola Laporan</h2>
-      <p class="text-sm text-muted">Kelola, pantau, dan unduh seluruh laporan operasional DAMKARHUB</p>
+      <p class="text-sm text-muted">Kelola dan unduh seluruh laporan operasional</p>
     </div>
 
     <Card class="flex flex-wrap items-end gap-3 p-4">

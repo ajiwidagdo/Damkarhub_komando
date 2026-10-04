@@ -1,7 +1,6 @@
 <template>
   <div class="space-y-4">
     <div>
-      <p class="text-xs text-muted">Manajemen Personel</p>
       <h2 class="text-2xl font-extrabold">Manajemen Personel</h2>
       <p class="text-sm text-muted">Kelola data anggota yang digunakan pada aplikasi petugas lapangan</p>
     </div>

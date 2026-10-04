@@ -1,7 +1,6 @@
 <template>
   <div class="space-y-4">
     <div>
-      <p class="text-xs text-muted">Pengaturan & Manajemen Akun</p>
       <h2 class="text-2xl font-extrabold">Pengaturan & Manajemen Akun</h2>
       <p class="text-sm text-muted">Kelola instansi, akun petugas, level akses, dan status berlangganan sistem DAMKARHUB</p>
     </div>

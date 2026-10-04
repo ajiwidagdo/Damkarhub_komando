@@ -2,16 +2,18 @@
   <div class="space-y-4">
     <div class="flex flex-wrap items-end justify-between gap-3">
       <div>
-        <p class="text-xs text-muted">Dasbor Analitik</p>
-        <h2 class="text-2xl font-extrabold">Dasbor Analitik & Statistik</h2>
-        <p class="text-sm text-muted">Ringkasan performa operasional DAMKARHUB dalam periode yang dipilih</p>
+        <h2 class="text-2xl font-extrabold">Dasbor Analitik</h2>
+        <p class="text-sm text-muted">Ringkasan performa operasional dalam periode yang dipilih</p>
       </div>
       <div class="flex flex-wrap gap-2">
         <Select v-model="period" class="w-40">
           <option>Agustus 2025</option><option>Juli 2025</option><option>Juni 2025</option>
         </Select>
-        <Select v-model="wilayah" class="w-44">
-          <option>Semua Wilayah</option><option>Kota Banjar</option><option>Kab. Ciamis</option>
+        <Select v-model="kategori" class="w-44">
+          <option value="semua">Semua Kategori</option>
+          <option value="k">Kebakaran</option>
+          <option value="nk">Penyelamatan</option>
+          <option value="sos">Sosialisasi</option>
         </Select>
         <Button><Download class="h-4 w-4" /> Cetak Laporan</Button>
       </div>
@@ -20,9 +22,9 @@
     <!-- 6 stat cards -->
     <div class="grid grid-cols-2 gap-4 xl:grid-cols-6">
       <StatCard label="Total Laporan Masuk" value="25" :delta="12" up :icon="FileText" color="#2563eb" />
-      <StatCard label="Total Kebakaran" value="15" suffix="51%" :delta="37" :up="false" :icon="Flame" color="#dc2626" />
-      <StatCard label="Total Penyelamatan" value="8" suffix="42%" :delta="37" up :icon="PawPrint" color="#2563eb" />
-      <StatCard label="Total Sosialisasi" value="2" suffix="7%" :delta="6" :up="false" :icon="Megaphone" color="#10b981" />
+      <StatCard v-if="showK" label="Total Kebakaran" value="15" suffix="51%" :delta="37" :up="false" :icon="Flame" color="#dc2626" />
+      <StatCard v-if="showNK" label="Total Penyelamatan" value="8" suffix="42%" :delta="37" up :icon="PawPrint" color="#2563eb" />
+      <StatCard v-if="showSOS" label="Total Sosialisasi" value="2" suffix="7%" :delta="6" :up="false" :icon="Megaphone" color="#10b981" />
       <StatCard label="Rata-rata Respon Time" value="12 menit" :delta="28" :up="false" :icon="Clock" color="#1e3a5f" />
       <StatCard label="Total Jarak Tempuh" value="342 km" :delta="14" up :icon="Route" color="#1e3a5f" />
     </div>
@@ -48,14 +50,14 @@
 
     <!-- Charts row 2 -->
     <div class="grid gap-4 xl:grid-cols-3">
-      <Card class="p-5">
+      <Card v-if="showK" class="p-5">
         <div class="mb-4 flex items-center justify-between">
           <h3 class="flex items-center gap-2 text-sm font-bold"><Flame class="h-4 w-4 text-damkar-500" /> Rincian Kebakaran</h3>
           <button class="text-xs font-semibold text-brand-600 hover:underline">Lihat Detail →</button>
         </div>
         <LazyChart type="donut" :options="kebakaranOptions" :series="[7, 4, 2, 1, 1]" />
       </Card>
-      <Card class="p-5">
+      <Card v-if="showNK" class="p-5">
         <div class="mb-4 flex items-center justify-between">
           <h3 class="flex items-center gap-2 text-sm font-bold"><PawPrint class="h-4 w-4 text-brand-500" /> Rincian Penyelamatan</h3>
           <button class="text-xs font-semibold text-brand-600 hover:underline">Lihat Detail →</button>
@@ -67,7 +69,7 @@
           </div>
         </div>
       </Card>
-      <Card class="p-5">
+      <Card v-if="showSOS" class="p-5">
         <div class="mb-4 flex items-center justify-between">
           <h3 class="flex items-center gap-2 text-sm font-bold"><Megaphone class="h-4 w-4 text-sos-500" /> Rincian Sosialisasi</h3>
           <button class="text-xs font-semibold text-brand-600 hover:underline">Lihat Detail →</button>
@@ -126,7 +128,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { FileText, Flame, PawPrint, Megaphone, Clock, Route, Download, Trophy, Medal, Map } from '@lucide/vue'
 import Card from '../components/ui/Card.vue'
 import Button from '../components/ui/Button.vue'
@@ -135,9 +137,13 @@ import StatCard from '../components/ui/StatCard.vue'
 import LazyChart from '../components/charts/LazyChart.vue'
 
 const period = ref('Agustus 2025')
-const wilayah = ref('Semua Wilayah')
+const kategori = ref<'semua' | 'k' | 'nk' | 'sos'>('semua')
 const trenMode = ref('Harian')
 const rankMode = ref('Bulan Ini')
+
+const showK = computed(() => kategori.value === 'semua' || kategori.value === 'k')
+const showNK = computed(() => kategori.value === 'semua' || kategori.value === 'nk')
+const showSOS = computed(() => kategori.value === 'semua' || kategori.value === 'sos')
 
 const trenSeries = [
   { name: 'Kebakaran', data: [2, 3, 2, 4, 3, 5, 4, 3, 4, 2, 3, 4, 3, 2, 4, 3, 5, 4, 3, 2, 3, 4, 2, 3, 4, 3, 2, 4, 3, 4, 3] },
