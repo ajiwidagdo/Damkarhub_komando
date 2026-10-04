@@ -16,13 +16,14 @@ const routes: RouteRecordRaw[] = [
     component: DashboardLayout,
     meta: { auth: true },
     children: [
-      { path: '', name: 'overview', component: () => import('../pages/OverviewPage.vue') },
-      { path: 'reports', name: 'reports', component: () => import('../pages/ReportListPage.vue') },
+      { path: '', name: 'command', component: () => import('../pages/CommandCenterPage.vue') },
+      { path: 'analitik', name: 'analytics', component: () => import('../pages/AnalyticsPage.vue') },
+      { path: 'reports', name: 'reports', component: () => import('../pages/ReportManagerPage.vue') },
       { path: 'reports/:id', name: 'report-detail', component: () => import('../pages/ReportDetailPage.vue') },
-      { path: 'personnel', name: 'personnel', component: () => import('../pages/PersonnelListPage.vue') },
+      { path: 'personnel', name: 'personnel', component: () => import('../pages/PersonnelManagerPage.vue') },
       { path: 'fleet', name: 'fleet', component: () => import('../pages/FleetPage.vue') },
       { path: 'survey', name: 'survey', component: () => import('../pages/SurveyPage.vue') },
-      { path: 'settings', name: 'settings', component: () => import('../pages/SettingsPage.vue') },
+      { path: 'settings', name: 'settings', component: () => import('../pages/SettingsBillingPage.vue') },
     ],
   },
   {
@@ -41,7 +42,7 @@ const router = createRouter({
 router.beforeEach((to) => {
   const loggedIn = localStorage.getItem('komando_auth') === '1'
   if (to.meta.auth && !loggedIn) return { name: 'login' }
-  if (to.meta.guest && loggedIn) return { name: 'overview' }
+  if (to.meta.guest && loggedIn) return { name: 'command' }
   return true
 })
 

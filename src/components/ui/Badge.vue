@@ -13,7 +13,7 @@ const badgeVariants = cva(
   {
     variants: {
       variant: {
-        default: 'bg-damkar-600/10 text-damkar-500',
+        default: 'bg-brand-600/10 text-brand-600',
         success: 'bg-sos-500/10 text-sos-500',
         warning: 'bg-rescue-500/15 text-rescue-500',
         muted: 'bg-background text-muted border border-line',
