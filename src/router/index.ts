@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
 import AuthLayout from '../layouts/AuthLayout.vue'
 import DashboardLayout from '../layouts/DashboardLayout.vue'
+import { isSupabaseConfigured, supabase } from '../lib/supabase'
 
 const routes: RouteRecordRaw[] = [
   {
@@ -38,9 +39,15 @@ const router = createRouter({
   routes,
 })
 
-// Mock auth guard — flag di localStorage (tanpa auth beneran)
-router.beforeEach((to) => {
-  const loggedIn = localStorage.getItem('komando_auth') === '1'
+// Auth guard: sesi Supabase bila dikonfigurasi, fallback flag localStorage (mock).
+router.beforeEach(async (to) => {
+  let loggedIn: boolean
+  if (isSupabaseConfigured) {
+    const { data } = await supabase.auth.getSession()
+    loggedIn = !!data.session
+  } else {
+    loggedIn = localStorage.getItem('komando_auth') === '1'
+  }
   if (to.meta.auth && !loggedIn) return { name: 'login' }
   if (to.meta.guest && loggedIn) return { name: 'command' }
   return true
