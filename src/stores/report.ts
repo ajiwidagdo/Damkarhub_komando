@@ -70,6 +70,18 @@ export const useReportStore = defineStore('report', () => {
   void fetchReports()
   subscribeRealtime()
 
+  // Muat ulang (+ subscribe ulang realtime) setiap sesi auth berubah:
+  // login baru, atau sesi pulih dari storage setelah refresh halaman.
+  // Tanpa ini, fetch yang jalan sebelum sesi siap akan gagal RLS dan
+  // tidak pernah dicoba ulang -> data mock tampil selamanya.
+  supabase.auth.onAuthStateChange((event) => {
+    if (event === 'SIGNED_IN' || event === 'INITIAL_SESSION') {
+      unsubscribeRealtime()
+      subscribeRealtime()
+      void fetchReports()
+    }
+  })
+
   return {
     reports, k, nk, sos, total, byId, moduleLabel,
     loading, error, usingLiveData,
