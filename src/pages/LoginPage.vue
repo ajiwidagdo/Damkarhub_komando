@@ -17,8 +17,11 @@
           <label class="mb-1.5 block text-sm font-medium">Kata sandi</label>
           <Input v-model="password" type="password" placeholder="••••••••" required />
         </div>
-        <Button type="submit" class="w-full">Masuk</Button>
-        <p class="text-center text-xs text-muted">Mock login — kredensial apa saja bisa masuk.</p>
+        <p v-if="error" class="rounded-lg bg-damkar-600/10 px-3 py-2 text-sm text-damkar-600">{{ error }}</p>
+        <Button type="submit" class="w-full" :disabled="loading">
+          {{ loading ? 'Memeriksa...' : 'Masuk' }}
+        </Button>
+        <p v-if="!isSupabaseConfigured" class="text-center text-xs text-muted">Mock login — kredensial apa saja bisa masuk.</p>
       </form>
     </Card>
   </div>
@@ -31,13 +34,37 @@ import { Flame } from '@lucide/vue'
 import Card from '../components/ui/Card.vue'
 import Input from '../components/ui/Input.vue'
 import Button from '../components/ui/Button.vue'
+import { isSupabaseConfigured, supabase } from '../lib/supabase'
 
 const router = useRouter()
 const email = ref('')
 const password = ref('')
+const loading = ref(false)
+const error = ref('')
 
-function login() {
-  localStorage.setItem('komando_auth', '1')
-  router.push({ name: 'overview' })
+async function login() {
+  error.value = ''
+
+  // Mode mock: Supabase belum dikonfigurasi.
+  if (!isSupabaseConfigured) {
+    localStorage.setItem('komando_auth', '1')
+    await router.push({ name: 'command' })
+    return
+  }
+
+  loading.value = true
+  try {
+    const { error: authError } = await supabase.auth.signInWithPassword({
+      email: email.value,
+      password: password.value,
+    })
+    if (authError) {
+      error.value = 'Email atau kata sandi salah. Silakan coba lagi.'
+      return
+    }
+    await router.push({ name: 'command' })
+  } finally {
+    loading.value = false
+  }
 }
 </script>

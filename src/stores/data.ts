@@ -1,12 +1,49 @@
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
-import type { FleetStatus, FleetUnit } from '../types'
+import type { FleetStatus, FleetUnit, Personnel } from '../types'
 import { mockFleet, mockPersonnel, mockRatings, mockPopular, mockFunniest } from '../mocks/personnel'
+import { isSupabaseConfigured, supabase } from '../lib/supabase'
+import { toPersonnel } from '../lib/adapters'
 
 export const usePersonnelStore = defineStore('personnel', () => {
-  const personnel = ref(mockPersonnel)
+  // Mock sebagai state awal — diganti data Supabase saat fetch berhasil.
+  const personnel = ref<Personnel[]>(mockPersonnel)
+  const loading = ref(false)
+  const error = ref<string | null>(null)
+  const usingLiveData = ref(false)
+
   const activeCount = computed(() => personnel.value.filter((p) => p.dispatch_active).length)
-  return { personnel, activeCount }
+
+  async function fetchPersonnel(): Promise<void> {
+    if (!isSupabaseConfigured) return
+    loading.value = true
+    error.value = null
+    try {
+      const [{ data: reguRows, error: reguErr }, { data: personilRows, error: personilErr }] =
+        await Promise.all([
+          supabase.from('regu').select('id,nama').order('nama', { ascending: true }),
+          supabase.from('personil').select('id,nama,regu_id').order('nama', { ascending: true }),
+        ])
+      if (reguErr) throw reguErr
+      if (personilErr) throw personilErr
+      const reguNameById = new Map<string, string>(
+        ((reguRows ?? []) as Record<string, unknown>[]).map((r) => [String(r.id), String(r.nama ?? '')]),
+      )
+      personnel.value = ((personilRows ?? []) as Record<string, unknown>[]).map((row) =>
+        toPersonnel(row, reguNameById),
+      )
+      usingLiveData.value = true
+    } catch (e) {
+      error.value = e instanceof Error ? e.message : 'Gagal memuat personil'
+    } finally {
+      loading.value = false
+    }
+  }
+
+  // Ambil data real saat store pertama dipakai.
+  void fetchPersonnel()
+
+  return { personnel, activeCount, loading, error, usingLiveData, fetchPersonnel }
 })
 
 export const useFleetStore = defineStore('fleet', () => {
