@@ -40,8 +40,13 @@ export const usePersonnelStore = defineStore('personnel', () => {
     }
   }
 
-  // Ambil data real saat store pertama dipakai.
+  // Ambil data real saat store pertama dipakai, dan muat ulang setiap
+  // sesi auth berubah (login / sesi pulih setelah refresh) agar tidak
+  // terjebak di data mock bila fetch pertama jalan sebelum sesi siap.
   void fetchPersonnel()
+  supabase.auth.onAuthStateChange((event) => {
+    if (event === 'SIGNED_IN' || event === 'INITIAL_SESSION') void fetchPersonnel()
+  })
 
   return { personnel, activeCount, loading, error, usingLiveData, fetchPersonnel }
 })
